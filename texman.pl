@@ -28,6 +28,16 @@ my @bold = split(/ /, 'b');
 my %values = ();
 
 
+foreach my $arg (@ARGV)
+{
+    if ($arg =~ m/=/)
+    {
+	my @parts = split(/=/, $arg);
+	$values{$parts[0]} = join('=', @parts[1..$#parts]);
+    }
+}
+
+
 while(1)
 {
     my $line = <STDIN> || die "Missing \@bye at end of document";
@@ -69,7 +79,7 @@ while(1)
 	    $var =~ s/\n//;
 	    $val =~ s/\n//;
 	    $part =~ s/\x01set{(.*)}{(.*)}//;
-	    $values{"$var"} = "$val";
+	    $values{"$var"} = "$val" if !exists $values{"$var"};
 	}
 	elsif ($part =~ m/\x01.+{.*}/)
 	{
