@@ -1,10 +1,9 @@
 @c -*- texinfo -*-
 
-@set{texman}{1}
 @set{man}{1}
 @set{texinfo}{1}
 
-@texman{texman}{@value{texman}}{August 3 2013}
+@texman{texman}{1}{August 3 2013}
 
 
 @section Name
@@ -33,7 +32,7 @@ suit your needs, just use pure troff(1).
 @section Arguments
 
 Texinfo does not have any options, but you can override values
-set in the Texman file, by adding @var{key}=@var{value} arguments.
+set in the Texman file, by adding @var{KEY}=@var{VALUE} arguments.
 
 
 
@@ -46,16 +45,16 @@ which will give you appropriate syntax highlightning.
 @code{@@c} is used to make a comment.
 
 After this, you should write, on a line,
-@b{@@texman@{@var{Manpage title}@}@{@var{Manpages section}@}@{@var{Date}@}}.
+@code{@@texman@{MANPAGE TITLE@}@{MANPAGES SECTION@}@{DATE@}}.
 
 Texman allows you to define value, that be used later in the file,
-you can do this by writting @b{@@set@{@var{key}@}@{@var{value}@}}.
-The value is used by wrtting @b{@@value@{@var{key}@}}.
+you can do this by writting @code{@@set@{KEY@}@{VALUE@}}.
+The value is used by wrtting @code{@@value@{KEY@}}.
 This is very useful on manpage sections because distributions may
 use different sections for same manpages.
 
 Manpages are divided into sections, this is done by writting, on a line,
-@b{@@section @var{Section name}}.
+@code{@@section SECTION NAME}.
 
 Line breaks are not parsed as line break, more than one line break
 on the other hand is parsed as a paragraph break. To make a line break,
@@ -68,13 +67,12 @@ below this line is ignored.
 @code{@@@{}, @code{@@@}}, @code{@@+} and @code{@@-}. @code{@@+} and
 {@@-} translated into @code{\+} and @code{\-}, respectively.
 
-To make text bold, use @b{@@b@{@var{Text}@}}, and use @b{@@url@{@var{URL}@}}
-for URL:s. @b{@@var@{@var{Text}@}}, @b{@@code@{@var{Text}@}},
-@b{@@i@{@var{Text}@}}, @b{@@emph@{@var{Text}@}}, @b{@@kbd@{@var{Text}@}},
-@b{@@option@{@var{Text}@}}, @b{@@command@{@var{Text}@}} and
-@b{@@file@{@var{Text}@}} makes a line as underlined.
+To make text bold, use @code{@@b@{TEXT@}}, and use @code{@@url@{URL@}}
+for URL:s. @code{@@var@{TEXT@}}, @code{@@code@{TEXT@}}, @code{@@i@{TEXT@}},
+@code{@@emph@{TEXT@}}, @code{@@kbd@{TEXT@}}, @code{@@option@{TEXT@}},
+@code{@@command@{TEXT@}} and @code{@@file@{TEXT@}} makes a line as underlined.
 
-When listing options for a program, use @b{@@item @var{Options}},
+When listing options for a program, use @code{@@item OPTIONS},
 this makes them the options bold and indents the text below.
 
 @@-commands most not span multiple lines.
@@ -92,4 +90,7 @@ this makes them the options bold and indents the text below.
 Any bug is probably just a misunderstand of the syntax, but in case
 there actually is a bug, or if you need help with anything related
 to texman at all, please go to @url{https://github.com/maandree/texman/issues}
+
+
+@bye
 
