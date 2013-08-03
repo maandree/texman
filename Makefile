@@ -7,7 +7,7 @@ PREFIX = /usr
 DATA = /share
 BIN = /bin
 PKGNAME = texman
-SHABANG = /usr$(BIN)/perl
+SHEBANG = /usr$(BIN)/perl
 COMMAND = texman
 LICENSES = $(PREFIX)$(DATA)
 MAN_SECTION = 1
@@ -28,11 +28,11 @@ texman.$(TEXMAN_SECTION).gz: texman.texman
 
 texman: texman.pl
 	cp "$<" "$@"
-	sed -i 's:#!/usr/bin/perl:#!$(SHEBANG)":' "$@"
+	sed -i 's:#!/usr/bin/perl:#!$(SHEBANG):' "$@"
 
-install: texman texman.$(TEXMAN).gz
+install: texman texman.$(TEXMAN_SECTION).gz
 	install -dm755 "$(DESTDIR)$(PREFIX)$(BIN)"
-	install -m755 texman "$(DESTDIR)$(PREFIX)$(BIN)$(COMMAND)"
+	install -m755 texman "$(DESTDIR)$(PREFIX)$(BIN)/$(COMMAND)"
 	install -dm755 "$(DESTDIR)$(LICENSES)/$(PKGNAME)"
 	install -m644 COPYING LICENSE "$(DESTDIR)$(LICENSES)/$(PKGNAME)"
 	install -dm755 "$(DESTDIR)$(PREFIX)$(DATA)/man/man$(TEXMAN_SECTION)"
