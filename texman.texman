@@ -1,0 +1,95 @@
+@c -*- texinfo -*-
+
+@set{texman}{1}
+@set{man}{1}
+@set{texinfo}{1}
+
+@texman{texman}{@value{texman}}{August 3 2013}
+
+
+@section Name
+
+texman - Texinfo-like syntax for manpages
+
+
+
+@section Synopsis
+
+@b{texman} [@var{key}=@var{value}...] < @file{TEXMANFILE} > @file{MANFILE}
+
+
+
+@section Description
+
+Texman is a syntax for writting manpage files that is designed to
+be similar to Texinfo, so that it is ease to write and easier to
+maintain concurrently with a Texinfo manual.
+
+However, texman is a limited syntax for manpage, if it does not
+suit your needs, just use pure troff(1).
+
+
+
+@section Arguments
+
+Texinfo does not have any options, but you can override values
+set in the Texman file, by adding @var{key}=@var{value} arguments.
+
+
+
+@section Syntax
+
+On the first line you may to write @code{@@c -*- texinfo -*-}, this
+tricks editors into thinging that you are editing a Texinfo file
+which will give you appropriate syntax highlightning.
+
+@code{@@c} is used to make a comment.
+
+After this, you should write, on a line,
+@b{@@texman@{@var{Manpage title}@}@{@var{Manpages section}@}@{@var{Date}@}}.
+
+Texman allows you to define value, that be used later in the file,
+you can do this by writting @b{@@set@{@var{key}@}@{@var{value}@}}.
+The value is used by wrtting @b{@@value@{@var{key}@}}.
+This is very useful on manpage sections because distributions may
+use different sections for same manpages.
+
+Manpages are divided into sections, this is done by writting, on a line,
+@b{@@section @var{Section name}}.
+
+Line breaks are not parsed as line break, more than one line break
+on the other hand is parsed as a paragraph break. To make a line break,
+use @code{@@*}.
+
+At the end of your document you most write @code{@@bye}, anything
+below this line is ignored.
+
+@code{@@@@}, is parsed as one @@-sign, similarly you can write
+@code{@@@{}, @code{@@@}}, @code{@@+} and @code{@@-}. @code{@@+} and
+{@@-} translated into @code{\+} and @code{\-}, respectively.
+
+To make text bold, use @b{@@b@{@var{Text}@}}, and use @b{@@url@{@var{URL}@}}
+for URL:s. @b{@@var@{@var{Text}@}}, @b{@@code@{@var{Text}@}},
+@b{@@i@{@var{Text}@}}, @b{@@emph@{@var{Text}@}}, @b{@@kbd@{@var{Text}@}},
+@b{@@option@{@var{Text}@}}, @b{@@command@{@var{Text}@}} and
+@b{@@file@{@var{Text}@}} makes a line as underlined.
+
+When listing options for a program, use @b{@@item @var{Options}},
+this makes them the options bold and indents the text below.
+
+@@-commands most not span multiple lines.
+
+
+
+@section See also
+
+@b{man}(@value{man}), @b{texinfo}(@value{texinfo}).
+
+
+
+@section Bugs
+
+Any bug is probably just a misunderstand of the syntax, but in case
+there actually is a bug, or if you need help with anything related
+to texman at all, please go to @url{https://github.com/maandree/texman/issues}
+

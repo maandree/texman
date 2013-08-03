@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 
-my @italic = split(/ /, 'var code i emph kbd option command');
+my @italic = split(/ /, 'var code i emph kbd option command file');
 my @bold = split(/ /, 'b');
 
 my %values = ();
@@ -51,7 +51,7 @@ while(1)
     $line =~ s/\@\+/\x00\+/g;
     $line =~ s/\@-/\x00-/g;
     
-    $line =~ s/\\\\/\\/g;
+    $line =~ s/\\/\\\\/g;
     
     exit 0 if $line =~ m/\@bye$/;
     exit 0 if $line =~ m/\@bye /;
