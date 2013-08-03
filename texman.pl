@@ -43,11 +43,13 @@ while(1)
     my $line = <STDIN> || die "Missing \@bye at end of document";
     die "Binary content found" if $line =~ m/\x00/;
     die "Binary content found" if $line =~ m/\x01/;
+    die "Binary content found" if $line =~ m/\x02/;
+    die "Binary content found" if $line =~ m/\x03/;
     
     $line =~ s/\x09/ /g;
     $line =~ s/\@\@/\x00\x00/g;
-    $line =~ s/\@{/\x00{/g;
-    $line =~ s/\@}/\x00}/g;
+    $line =~ s/\@{/\x02/g;
+    $line =~ s/\@}/\x03/g;
     $line =~ s/\@\+/\x00\+/g;
     $line =~ s/\@-/\x00-/g;
     
@@ -118,6 +120,8 @@ while(1)
     $line =~ s/\x00\x00/\@/g;
     $line =~ s/\x00\+/\@\+/g;
     $line =~ s/\x00-/\@-/g;
+    $line =~ s/\x02/{/g;
+    $line =~ s/\x03/}/g;
     
     print "$line";
 }
