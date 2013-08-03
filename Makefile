@@ -19,11 +19,11 @@ all: texman doc
 
 doc: man
 
-man: texman
+man: texman.$(TEXMAN_SECTION).gz
 
 texman.$(TEXMAN_SECTION).gz: texman.texman
 	cp "$<" "$<"~
-	sed -i '/^@texman{/s/{1}/$(TEXMAN_SECTION)/' "$<"~
+	sed -i '/^@texman{/s/{1}/{$(TEXMAN_SECTION)}/' "$<"~
 	perl texman.pl man=$(MAN_SECTION) texinfo=$(TEXINFO_SECTION) < "$<"~ | gzip -9 -f > "$@"
 
 texman: texman.pl
