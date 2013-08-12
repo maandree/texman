@@ -26,6 +26,9 @@ my @italic = split(/ /, 'var code i emph kbd option command file');
 my @bold = split(/ /, 'b');
 
 my %values = ();
+my @stack = ();
+my $alpha = "";
+my $beta = "";
 
 
 foreach my $arg (@ARGV)
@@ -38,91 +41,203 @@ foreach my $arg (@ARGV)
 }
 
 
+my $buf = "";
 while(1)
 {
     my $line = <STDIN> || die "Missing \@bye at end of document";
-    die "Binary content found" if $line =~ m/\x00/;
-    die "Binary content found" if $line =~ m/\x01/;
-    die "Binary content found" if $line =~ m/\x02/;
-    die "Binary content found" if $line =~ m/\x03/;
-    
+    $line =~ s/\n//g;
+    $line =~ s/\r//g;
     $line =~ s/\x09/ /g;
-    $line =~ s/\@\@/\x00\x00/g;
-    $line =~ s/\@{/\x02/g;
-    $line =~ s/\@}/\x03/g;
-    $line =~ s/\@\+/\x00\+/g;
-    $line =~ s/\@-/\x00-/g;
-    
     $line =~ s/\\/\\\\/g;
+    $line =~ s/^\./\\\./g;
     
-    exit 0 if $line =~ m/\@bye$/;
-    exit 0 if $line =~ m/\@bye /;
-    
-    $line =~ s/\@/\@\x01/g;
-    
-    my @parts = split(/\@/, $line);
-    $line = "";
-    foreach my $part (@parts)
+    my $position = 0;
+    while ($position >= 0)
     {
-	$part =~ s/^\./\\\./g;
-	if ($part =~ m/\x01texman{.*}{.*}{.*}/)
+	if (length($buf) > 0)
 	{
-	    $part =~ s/\x01texman{(.*)}{(.*)}{(.*)}/.TH $1 $2 "$3"/;
-	    my @p = split(/ /, $part);
-	    $p[1] = uc $p[1];
-	    $part = join(' ', @p);
+	    my $at = index($line, "@");
+	    my $cb = index($line, "}");
+	    $position = $at < 0 ? $cb : $cb < 0 ? $at : $at < $cb ? $at : $cb;
 	}
-	elsif ($part =~ m/\x01set{.*}{.*}/)
+	else
 	{
-	    my $var = "$part";
-	    my $val = "$part";
-	    $var =~ s/\x01set{(.*)}{(.*)}/$1/;
-	    $val =~ s/\x01set{(.*)}{(.*)}/$2/;
-	    $var =~ s/\n//;
-	    $val =~ s/\n//;
-	    $part =~ s/\x01set{(.*)}{(.*)}//;
-	    $values{"$var"} = "$val" if !exists $values{"$var"};
+	    $position = index($line, "@");
 	}
-	elsif ($part =~ m/\x01.+{.*}/)
+	if ($position < 0)
 	{
-	    foreach my $cmd (@italic)
+	    if (length($buf) == 0)
 	    {
-		$part =~ s/\x01${cmd}{(.*)}/\\fI$1\\fP/;
+		print "${line}\n";
 	    }
-	    foreach my $cmd (@bold)
+	    else
 	    {
-		$part =~ s/\x01${cmd}{(.*)}/\\fB$1\\fP/;
+		$buf = "${buf}${line}\n";
 	    }
-	    $part =~ s/\x01url{(.*)}/\<\\fB$1\\fP\>/;
-	    $part =~ s/\x01value{(.*)}/$values{$1}/;
-	    die "Unrecognised command" if $part =~ m/\x01/;
 	}
-	elsif ($part =~ m/\x01section /)
+	elsif (substr($line, $position) =~ m/^}/)
 	{
-	    $part =~ s/\x01section/\.SH/;
-	    $part = uc $part;
+	    my $start = pop @stack;
+	    $start = 0;
+	    my $command = substr($buf, $start);
+	    my $post = substr($line, 0, $position + 1);
+	    $command = "${command}${post}";
+	    $line = substr($line, $position + 1);
+	    $buf = substr($buf, 0, $start);
+	    my $out = "";
+	    
+	    if ($command =~ m/^\@set{/)
+	    {
+		$alpha = substr($command, 5, length($command) - 6);
+		push(@stack, length($buf));
+		$out = "\@set-";
+	    }
+	    elsif ($command =~ m/^\@set-{/)
+	    {
+		$beta = substr($command, 6, length($command) - 7);
+		$values{$alpha} = $beta if !exists $values{$alpha};
+	    }
+	    elsif ($command =~ m/^\@texman{/)
+	    {
+		$alpha = substr($command, 8, length($command) - 9);
+		push(@stack, length($buf));
+		$out = "\@texman-";
+	    }
+	    elsif ($command =~ m/^\@texman-{/)
+	    {
+		$beta = substr($command, 9, length($command) - 10);
+		push(@stack, length($buf));
+		$out = "\@texman--";
+	    }
+	    elsif ($command =~ m/^\@texman--{/)
+	    {
+		my $gamma = substr($command, 10, length($command) - 11);
+		$alpha = uc $alpha;
+		$out = ".TH ${alpha} ${beta} ${gamma}";
+	    }
+	    elsif ($command =~ m/^\@bye /)
+	    {
+		exit 0
+	    }
+	    elsif ($command =~ m/^\@bye$/)
+	    {
+		exit 0
+	    }
+	    else
+	    {
+		foreach my $cmd (@italic)
+		{
+		    if ($command =~ m/^\@${cmd}{/)
+		    {
+			$out = substr($command, 2 + length($cmd));
+			$out = substr($out, 0, length($out) - 1);
+			$out =~ s/\x00\\fP\x01/\\fP\\fI/g;
+			$out = "\\fI${out}\x00\\fP\x01";
+		    }
+		}
+		foreach my $cmd (@bold)
+		{
+		    if ($command =~ m/^\@${cmd}{/)
+		    {
+			$out = substr($command, 2 + length($cmd));
+			$out = substr($out, 0, length($out) - 1);
+			$out =~ s/\x00\\fP\x01/\\fP\\fB/g;
+			$out = "\\fB${out}\x00\\fP\x01";
+		    }
+		}
+		if ($command =~ m/^\@url{/)
+		{
+		    $out = substr($command, 5, length($command) - 6);
+		    $out =~ s/\x00\\fP\x01/\\fP\\fB/g;
+		    $out = "\\fB${out}\x00\\fP\x01";
+		}
+		if ($command =~ m/^\@value{/)
+		{
+		    $out = substr($command, 7, length($command) - 8);
+		    $out = $values{$out};
+		}
+	    }
+	    
+	    $buf = "${buf}${out}";
+	    if ($#stack == -1)
+	    {
+		$buf =~ s/\x00//g;
+		$buf =~ s/\x01//g;
+		print $buf;
+	    }
 	}
-	elsif ($part =~ m/\x01item /)
+	else
 	{
-	    $part =~ s/\x01item /\.TP\n\.B /;
+	    if (length($buf) == 0)
+	    {
+		print substr($line, 0, $position);
+		$line = substr($line, $position);
+	    }
+	    
+	    my $out = "";
+	    if ($line =~ m/^\@\@/)
+	    {
+		$out = "@";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@{/)
+	    {
+		$out = "{";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@}/)
+	    {
+		$out = "}";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@\+/)
+	    {
+		$out = "+";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@-/)
+	    {
+		$out = "-";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@\*/)
+	    {
+		$out = ".br";
+		$line = substr($line, 2);
+	    }
+	    elsif (($line =~ m/^\@c/) && !($line =~ m/^\@c[a-z]+{/))
+	    {
+		$out = ".\\\"";
+		$line = substr($line, 2);
+	    }
+	    elsif ($line =~ m/^\@item /)
+	    {
+		$out = ".TP\n.B ";
+		$line = substr($line, 6);
+	    }
+	    elsif ($line =~ m/^\@section /)
+	    {
+		$out = ".SH ";
+		$line = uc substr($line, 9);
+	    }
+	    else
+	    {
+		push(@stack, length($buf) + $position);
+		$position = index($line, "{") + 1;
+		my $pre = substr($line, 0, $position);
+		$buf = "${buf}${pre}";
+		$line = substr($line, $position);
+	    }
+	    
+	    if (length($buf) == 0)
+	    {
+		print $out;
+	    }
+	    else
+	    {
+		$buf = "${buf}${out}";
+	    }
 	}
-	elsif ($part =~ m/\x01\*/)
-	{
-	    $part =~ s/\x01\*/\.br/;
-	}
-	elsif ($part =~ m/\x01c/)
-	{
-	    $part =~ s/\x01c/\.\\"/;
-	}
-	$line = "${line}${part}";
     }
-    
-    $line =~ s/\x00\x00/\@/g;
-    $line =~ s/\x00\+/\@\+/g;
-    $line =~ s/\x00-/\@-/g;
-    $line =~ s/\x02/{/g;
-    $line =~ s/\x03/}/g;
-    
-    print "$line";
 }
 
