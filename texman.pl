@@ -48,8 +48,8 @@ while(1)
     
     $line =~ s/\x09/ /g;
     $line =~ s/\@\@/\x00\x00/g;
-    $line =~ s/\@{/\x02/g;
-    $line =~ s/\@}/\x03/g;
+    $line =~ s/\@\{/\x02/g;
+    $line =~ s/\@\}/\x03/g;
     $line =~ s/\@\+/\x00\+/g;
     $line =~ s/\@-/\x00-/g;
     
@@ -65,36 +65,36 @@ while(1)
     foreach my $part (@parts)
     {
 	$part =~ s/^\./\\\./g;
-	if ($part =~ m/\x01texman{.*}{.*}{.*}/)
+	if ($part =~ m/\x01texman\{.*\}\{.*\}\{.*\}/)
 	{
-	    $part =~ s/\x01texman{(.*)}{(.*)}{(.*)}/.TH $1 $2 "$3"/;
+	    $part =~ s/\x01texman\{(.*)\}\{(.*)\}\{(.*)\}/.TH $1 $2 "$3"/;
 	    my @p = split(/ /, $part);
 	    $p[1] = uc $p[1];
 	    $part = join(' ', @p);
 	}
-	elsif ($part =~ m/\x01set{.*}{.*}/)
+	elsif ($part =~ m/\x01set\{.*\}\{.*\}/)
 	{
 	    my $var = "$part";
 	    my $val = "$part";
-	    $var =~ s/\x01set{(.*)}{(.*)}/$1/;
-	    $val =~ s/\x01set{(.*)}{(.*)}/$2/;
+	    $var =~ s/\x01set\{(.*)\}\{(.*)\}/$1/;
+	    $val =~ s/\x01set\{(.*)\}\{(.*)\}/$2/;
 	    $var =~ s/\n//;
 	    $val =~ s/\n//;
-	    $part =~ s/\x01set{(.*)}{(.*)}//;
+	    $part =~ s/\x01set\{(.*)\}\{(.*)\}//;
 	    $values{"$var"} = "$val" if !exists $values{"$var"};
 	}
-	elsif ($part =~ m/\x01.+{.*}/)
+	elsif ($part =~ m/\x01.+\{.*\}/)
 	{
 	    foreach my $cmd (@italic)
 	    {
-		$part =~ s/\x01${cmd}{(.*)}/\\fI$1\\fP/;
+		$part =~ s/\x01${cmd}\{(.*)\}/\\fI$1\\fP/;
 	    }
 	    foreach my $cmd (@bold)
 	    {
-		$part =~ s/\x01${cmd}{(.*)}/\\fB$1\\fP/;
+		$part =~ s/\x01${cmd}\{(.*)\}/\\fB$1\\fP/;
 	    }
-	    $part =~ s/\x01url{(.*)}/\<\\fB$1\\fP\>/;
-	    $part =~ s/\x01value{(.*)}/$values{$1}/;
+	    $part =~ s/\x01url\{(.*)\}/\<\\fB$1\\fP\>/;
+	    $part =~ s/\x01value\{(.*)\}/$values{$1}/;
 	    die "Unrecognised command" if $part =~ m/\x01/;
 	}
 	elsif ($part =~ m/\x01section /)
