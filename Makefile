@@ -15,12 +15,11 @@ install: texman.1
 	mkdir -p -- "$(DESTDIR)$(PREFIX)/share/licenses/texman"
 	cp -- texman "$(DESTDIR)$(PREFIX)/bin/"
 	cp -- texman.1 "$(DESTDIR)$(MANPREFIX)/man1/"
-	cp -- COPYING LICENSE "$(DESTDIR)$(PREFIX)/share/licenses/texman/"
+	cp -- LICENSE "$(DESTDIR)$(PREFIX)/share/licenses/texman/"
 
 uninstall:
 	-rm -- "$(DESTDIR)$(PREFIX)/bin/texman"
 	-rm -- "$(DESTDIR)$(MANPREFIX)/man1/texman.1"
-	-rm -- "$(DESTDIR)$(PREFIX)/share/licenses/texman/COPYING"
 	-rm -- "$(DESTDIR)$(PREFIX)/share/licenses/texman/LICENSE"
 	-rmdir -- "$(DESTDIR)$(PREFIX)/share/licenses/texman"
 
