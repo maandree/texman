@@ -1,0 +1,64 @@
+.\" -*- texinfo -*-
+.TH TEXMAN 1 "texman"
+
+.SH NAME
+texman - Texinfo-like syntax for manpages
+
+.SH SYNOPSIS
+\fBtexman\fP [\fIkey\fP=\fIvalue\fP...] < \fITEXMANFILE\fP > \fIMANFILE\fP
+
+.SH DESCRIPTION
+Texman is a syntax for writting manpage files that is designed to
+be similar to Texinfo, so that it is ease to write and easier to
+maintain concurrently with a Texinfo manual.
+
+However, texman is a limited syntax for manpage, if it does not
+suit your needs, just use pure troff(1).
+
+.SH ARGUMENTS
+Texinfo does not have any options, but you can override values
+set in the Texman file, by adding \fIKEY\fP=\fIVALUE\fP arguments.
+
+.SH SYNTAX
+On the first line you may to write \fI@c -*- texinfo -*-\fP, this
+tricks editors into thinging that you are editing a Texinfo file
+which will give you appropriate syntax highlightning.
+
+\fI@c\fP is used to make a comment.
+
+After this, you should write, on a line,
+\fI@texman{MANPAGE TITLE}{MANPAGES SECTION}{DATE}\fP.
+
+Texman allows you to define value, that be used later in the file,
+you can do this by writting \fI@set{KEY}{VALUE}\fP.
+The value is used by wrtting \fI@value{KEY}\fP.
+This is very useful on manpage sections because distributions may
+use different sections for same manpages.
+
+Manpages are divided into sections, this is done by writting, on a line,
+\fI@section SECTION NAME\fP.
+
+Line breaks are not parsed as line break, more than one line break
+on the other hand is parsed as a paragraph break. To make a line break,
+use \fI@*\fP.
+
+At the end of your document you most write \fI@bye\fP, anything
+below this line is ignored.
+
+\fI@@\fP, is parsed as one @-sign, similarly you can write
+\fI@{\fP, \fI@}\fP, \fI@+\fP and \fI@-\fP. \fI@+\fP and
+{@-} translated into \fI\\+\fP and \fI\\-\fP, respectively.
+
+To make text bold, use \fI@b{TEXT}\fP, and use \fI@url{URL}\fP
+for URL:s. \fI@var{TEXT}\fP, \fI@code{TEXT}\fP, \fI@i{TEXT}\fP,
+\fI@emph{TEXT}\fP, \fI@kbd{TEXT}\fP, \fI@option{TEXT}\fP,
+\fI@command{TEXT}\fP and \fI@file{TEXT}\fP makes a line as underlined.
+
+When listing options for a program, use \fI@item OPTIONS\fP,
+this makes them the options bold and indents the text below.
+
+@-commands most not span multiple lines.
+
+.SH SEE ALSO
+\fBman\fP(1), \fBtexinfo\fP(1).
+

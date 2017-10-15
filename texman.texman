@@ -1,24 +1,13 @@
 @c -*- texinfo -*-
-@texman{texman}{1}{August 3 2013}
-
-@set{man}{1}
-@set{texinfo}{1}
-
+@texman{texman}{1}{texman}
 
 @section Name
-
 texman - Texinfo-like syntax for manpages
 
-
-
 @section Synopsis
-
 @b{texman} [@var{key}=@var{value}...] < @file{TEXMANFILE} > @file{MANFILE}
 
-
-
 @section Description
-
 Texman is a syntax for writting manpage files that is designed to
 be similar to Texinfo, so that it is ease to write and easier to
 maintain concurrently with a Texinfo manual.
@@ -26,17 +15,11 @@ maintain concurrently with a Texinfo manual.
 However, texman is a limited syntax for manpage, if it does not
 suit your needs, just use pure troff(1).
 
-
-
 @section Arguments
-
 Texinfo does not have any options, but you can override values
 set in the Texman file, by adding @var{KEY}=@var{VALUE} arguments.
 
-
-
 @section Syntax
-
 On the first line you may to write @code{@@c -*- texinfo -*-}, this
 tricks editors into thinging that you are editing a Texinfo file
 which will give you appropriate syntax highlightning.
@@ -76,20 +59,7 @@ this makes them the options bold and indents the text below.
 
 @@-commands most not span multiple lines.
 
-
-
 @section See also
-
 @b{man}(@value{man}), @b{texinfo}(@value{texinfo}).
 
-
-
-@section Bugs
-
-Any bug is probably just a misunderstand of the syntax, but in case
-there actually is a bug, or if you need help with anything related
-to texman at all, please go to @url{https://github.com/maandree/texman/issues}
-
-
 @bye
-

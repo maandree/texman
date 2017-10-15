@@ -1,54 +1,30 @@
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.  This file is offered as-is,
-# without any warranty.
+PREFIX = /usr/local
+MANPREFIX = $(PREFIX)/share/man
 
-PREFIX = /usr
-DATA = /share
-BIN = /bin
-PKGNAME = texman
-SHEBANG = /usr$(BIN)/perl
-COMMAND = texman
-LICENSES = $(PREFIX)$(DATA)/licenses
-MAN_SECTION = 1
-TEXMAN_SECTION = 1
-TEXINFO_SECTION = 1
+all: texman.1
 
+texman.1: texman.texman
+	./texman man=1 texinfo=1 < texman.texman > "$@"
 
-all: texman doc
+check: texman.1
+	diff texman.1 texman.1.ref >/dev/null
 
-doc: man
-
-man: texman.$(TEXMAN_SECTION).gz
-
-texman.$(TEXMAN_SECTION).gz: texman.texman
-	cp "$<" "$<"~
-	sed -i '/^@texman{/s/{1}/{$(TEXMAN_SECTION)}/' "$<"~
-	perl texman.pl man=$(MAN_SECTION) texinfo=$(TEXINFO_SECTION) < "$<"~ | gzip -9 -f > "$@"
-
-texman: texman.pl
-	cp "$<" "$@"
-	sed -i 's:#!/usr/bin/perl:#!$(SHEBANG):' "$@"
-
-install: texman texman.$(TEXMAN_SECTION).gz
-	install -dm755 "$(DESTDIR)$(PREFIX)$(BIN)"
-	install -m755 texman "$(DESTDIR)$(PREFIX)$(BIN)/$(COMMAND)"
-	install -dm755 "$(DESTDIR)$(LICENSES)/$(PKGNAME)"
-	install -m644 COPYING LICENSE "$(DESTDIR)$(LICENSES)/$(PKGNAME)"
-	install -dm755 "$(DESTDIR)$(PREFIX)$(DATA)/man/man$(TEXMAN_SECTION)"
-	install -m644 texman.$(TEXMAN_SECTION).gz "$(DESTDIR)$(PREFIX)$(DATA)/man/man$(TEXMAN_SECTION)/$(COMMAND).$(TEXMAN_SECTION).gz"
+install: texman.1
+	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
+	mkdir -p -- "$(DESTDIR)$(MANPREFIX)/man1"
+	mkdir -p -- "$(DESTDIR)$(PREFIX)/share/licenses/texman"
+	cp -- texman "$(DESTDIR)$(PREFIX)/bin/"
+	cp -- texman.1 "$(DESTDIR)$(MANPREFIX)/man1/"
+	cp -- COPYING LICENSE "$(DESTDIR)$(PREFIX)/share/licenses/texman/"
 
 uninstall:
-	rm -- "$(DESTDIR)$(PREFIX)$(BIN)/$(COMMAND)"
-	rm -- "$(DESTDIR)$(LICENSES)/$(PKGNAME)/COPYING"
-	rm -- "$(DESTDIR)$(LICENSES)/$(PKGNAME)/LICENSE"
-	rmdir -- "$(DESTDIR)$(LICENSES)/$(PKGNAME)"
-	rm -- "$(DESTDIR)$(PREFIX)$(DATA)/man/man$(TEXMAN_SECTION)/$(COMMAND).$(TEXMAN_SECTION).gz"
-
+	-rm -- "$(DESTDIR)$(PREFIX)/bin/texman"
+	-rm -- "$(DESTDIR)$(MANPREFIX)/man1/texman.1"
+	-rm -- "$(DESTDIR)$(PREFIX)/share/licenses/texman/COPYING"
+	-rm -- "$(DESTDIR)$(PREFIX)/share/licenses/texman/LICENSE"
+	-rmdir -- "$(DESTDIR)$(PREFIX)/share/licenses/texman"
 
 clean:
-	-rm texman texman.$(TEXMAN_SECTION).gz
+	-rm texman.1
 
-
-.PHONY: all doc install uninstall clean
-
+.PHONY: all check install uninstall clean
